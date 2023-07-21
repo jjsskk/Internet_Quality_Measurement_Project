@@ -1,6 +1,6 @@
 # Internet_Quality_Measurement_Project
 
-- This program is an internet speed measurement program made with Boost Library based cpp. 
+- This program is an internet speed measurement program made with Boost Library based on cpp. 
 
 - [Boost.Asio Overview](https://www.boost.org/doc/libs/1_81_0/doc/html/boost_asio/overview.html)
 
