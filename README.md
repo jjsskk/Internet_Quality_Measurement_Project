@@ -21,7 +21,7 @@ Delay(UDP) will be measured
 
 - The client can directly specify the internet speed measurement time and the number of TCP sessions connected to the server as command line arguments.
 
-- To measure maximum throughput, the number of TCP sessions connected to the server can be increased. 
+- To measure maximum throughput, you can set the number of TCP sessions connected to the server higher. 
 
 - One thread per session handles the work.
 
