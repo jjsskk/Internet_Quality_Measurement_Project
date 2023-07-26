@@ -27,7 +27,7 @@ Delay(UDP) will be measured
 
 - A server can support multiple clients simultaneously.  
 
-- When running multiple clients and server in one environment, bind errors due to overlapping port numbers can occur very occasionally. If so, close all programs(ctrl + c) and restart.
+- When running multiple clients and server in one environment, bind errors due to overlapping port numbers can occur occasionally. If so, close all programs(ctrl + c) and restart.
 
 
 ```
