@@ -10,11 +10,17 @@
 
 - Ubuntu(Linux) environment is required. 
 
-- Installation required : `g++(std=c++11)`, `boost library`
+- Installation required : `g++(std=c++11)`, `cmake`
+```
+kho@kho-desktop:~/cpp$ cmake -version
+cmake version 3.28.1
+
+CMake suite maintained and supported by Kitware (kitware.com/cmake).
+```
 
 - [boost_1_81_0.tar.gz download](https://boostorg.jfrog.io/artifactory/main/release/1.81.0/source/boost_1_81_0.tar.gz)
 
-- You can also use makefile to compile
+- use cmake to build project
 
 - When a client connects to the server, Download Throughput(TCP), Upload Throughput(TCP) and End-to-End 
 Delay(UDP) will be measured
@@ -31,12 +37,15 @@ Delay(UDP) will be measured
 
 
 ```
-g++ -std=c++11 perf_server.cpp -o perf_server -lboost_system -pthread
+mkdir build && cd build 
+cmake .. 
+nproc # 자신 시스템의 코어 수 확인
+
+# build (modify the core number '12' after option -j accordingly)
+make -j4 # 자신 시스템 코어 수에 맞게 -j 다음의 숫자를 변경
+cd bin
 ```
 
-```
-g++ -std=c++11 perf_client.cpp -o perf_client -lboost_system -pthread
-```
 
 ```
 ./perf_client <IP> <port> <the number of session> <measure time>
