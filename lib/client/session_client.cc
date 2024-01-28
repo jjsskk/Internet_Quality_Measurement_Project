@@ -1,10 +1,87 @@
+#include "session_client.h"
+
+void fail(beast::error_code ec, char const *what)
+{
+   std::cerr << what << ": " << ec.message() << "\n";
+}
+
+session::session(tcp::socket socket, int port, std::string time, std::string number)
+    : socket(std::move(socket))
+{
+   this->port = port;
+   this->time = atoi(time.c_str());
+   this->number_ = atoi(number.c_str());
+   std::cout << "new session connected " << std::endl;
+   reply.fill('r');
+}
+
+session::~session()
+{
+
+   std::cout << "session closed " << std::endl;
+}
+
+void session::start()
+{
+   udp::socket udp_socket(ioservice,
+                          udp::endpoint{boost::asio::ip::udp::v4(), (short unsigned int)(port)});
+
+   int pool_num = 0;
+   acceptorpool.emplace_back(ioservice, tcp::endpoint(tcp::v4(), port));
+   for (; pool_num < number_ * 2; pool_num++)
+   {
+      // socketpool.emplace_back(tcp_socket(ioservice));
+      if (pool_num < number_)
+      {
+         acceptorpool.back().async_accept(
+             ioservice,
+             beast::bind_front_handler(
+                 &session::do_download,
+                 shared_from_this()));
+
+         threadpool.emplace_back(
+             [this]
+             {
+                ioservice.run();
+             });
+
+         threadpool.back().detach();
+      }
+      else
+      {
+         acceptorpool.back().async_accept(
+             ioservice,
+             beast::bind_front_handler(
+                 &session::do_upload,
+                 shared_from_this()));
+         socket.write_some(buffer(reply, reply.size()));
+         // to avoid where server's connect() in do_download() is executed before client's accept() in do_download() for new tcp connections
+      }
+   }
+
+   sleep(2);
+   progressbar_down();
+
+   progressbar_up();
+
+   double throughput_down = ((total_downloaddata * 8) / 1000000.0d) / time;
+   double throughput_up = ((total_uploaddata * 8) / 1000000.0d) / time;
+
+   std::cout << "total data that all threads download : " << total_downloaddata << "bytes" << std::endl;
+   std::cout << "total data that all threads upload : " << total_uploaddata << "bytes" << std::endl;
+   std::cout << "Download throughput applied to all threads : " << throughput_down << "Mbps" << std::endl;
+   std::cout << "Upload throughput applied to all threads : " << throughput_up << "Mbps" << std::endl;
+   std::cout << "\nDelay measurement using UDP" << std::endl;
+
+   do_endtoend(udp_socket);
+}
+
 void session::progressbar_down()
 {
    const char bar = '=';          // 프로그레스바 문자
    const char blank = ' ';        // 비어있는 프로그레스바 문자
    const int LEN = 20;            // 프로그레스바 길이
    const int MAX = 100;           // 진행작업 최대값
-   const int SPEED = 50;          // 카운트 증가 대기시간
    int count = 0;                 // 현재 진행된 작업
    int i;                         // 반복문 전용 변수
    float tick = (float)100 / LEN; // 몇 %마다 프로그레스바 추가할지 계산
@@ -30,17 +107,17 @@ void session::progressbar_down()
       }
       printf("] %0.2f%%", percent); // 퍼센트 출력
       double throughput_down = ((total_downloaddata * 8) / 1000000.0d) / time;
-      if(count == MAX-1)
+      if (count == MAX - 1)
       {
-         while(delay_down != number_)
+         while (delay_down != number_)
          {
-
          }
          std::cout << ": download throughput = " << throughput_down << "Mbps";
-      }else
-      std::cout << ": download throughput = " << throughput_down << "Mbps";
+      }
+      else
+         std::cout << ": download throughput = " << throughput_down << "Mbps";
       fflush(stdout);
-      count++;                      // 카운트 1증가
+      count++;              // 카운트 1증가
       usleep(time * 10000); // spended time per 1/100
    }
    printf(" done!\n\n");
@@ -52,7 +129,6 @@ void session::progressbar_up()
    const char blank = ' ';        // 비어있는 프로그레스바 문자
    const int LEN = 20;            // 프로그레스바 길이
    const int MAX = 100;           // 진행작업 최대값
-   const int SPEED = 50;          // 카운트 증가 대기시간
    int count = 0;                 // 현재 진행된 작업
    int i;                         // 반복문 전용 변수
    float tick = (float)100 / LEN; // 몇 %마다 프로그레스바 추가할지 계산
@@ -79,17 +155,17 @@ void session::progressbar_up()
       printf("] %0.2f%% ", percent); // 퍼센트 출력
       double throughput_up = ((total_uploaddata * 8) / 1000000.0d) / time;
 
-      if(count == MAX-1)
+      if (count == MAX - 1)
       {
-         while(delay_up != number_)
+         while (delay_up != number_)
          {
-
          }
-          std::cout << ": upload throughput =  " << throughput_up << "Mbps";
-      }else
-      std::cout << ": upload throughput =  " << throughput_up << "Mbps";
+         std::cout << ": upload throughput =  " << throughput_up << "Mbps";
+      }
+      else
+         std::cout << ": upload throughput =  " << throughput_up << "Mbps";
       fflush(stdout);
-      count++;                       // 카운트 1증가
+      count++;              // 카운트 1증가
       usleep(time * 10000); // // spended time per 1/100
    }
    printf(" done!\n\n");
@@ -138,7 +214,7 @@ void session::do_download(beast::error_code ec, tcp::socket tcp_socket)
       total_downloaddata += sum;
       mtx_download.unlock();
       std::string check = "EOF";
-      auto write_length = tcp_socket.write_some(buffer(check, check.length()));
+      tcp_socket.write_some(buffer(check, check.length()));
       tcp_socket.close();
    }
    mtx_delay_down.lock();
@@ -177,7 +253,7 @@ void session::do_upload(beast::error_code ec, tcp::socket tcp_socket)
          // // down="EOF";
          // //  auto write_length =tcp_socket.write_some(buffer(down, down.length()));
          reply.fill(0);
-         auto write_length = tcp_socket.read_some(buffer(reply, reply.size()));
+         tcp_socket.read_some(buffer(reply, reply.size()));
          // std::cout << "EOF :" << write_length << std::endl;
 
          tcp_socket.close();
@@ -208,7 +284,6 @@ void session::do_endtoend(udp::socket &udp_socket)
           server);
       // std::cout << server << ": " << reply.data() << '\n';
 
-      int i;
 
       reply_delay.fill('r');
       reply.fill(0);

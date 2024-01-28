@@ -1,36 +1,17 @@
-#include <iostream>
-#include <array>
+
 #include <string>
 #include <boost/asio.hpp>
 #include <boost/beast/core.hpp>
 #include <cstdlib>
 #include <ctime>
 #include <chrono>
-#include <thread>
 #include <unistd.h>
 #include <sys/time.h>
-#include <mutex>
+#include "session_client.h"
 
-namespace beast = boost::beast;
-using namespace boost::asio;
-using namespace boost::asio::ip;
 
-std::mutex mtx_download;
-std::mutex mtx_upload;
-long total_downloaddata = 0;
-long total_uploaddata = 0;
-std::mutex mtx_delay_up;
-std::mutex mtx_delay_down;
-int delay_up = 0;
-int delay_down = 0;
 
-void fail(beast::error_code ec, char const *what)
-{
-   std::cerr << what << ": " << ec.message() << "\n";
-}
 
-#include "session_client.hpp"
-#include "session_client.cpp"
 
 void run_client(std::string host, short const port, std::string number, std::string time)
 {

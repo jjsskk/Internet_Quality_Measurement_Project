@@ -13,12 +13,11 @@
 #include <thread>
 #include <unistd.h>
 #include <sys/time.h>
+#include "session_server.h"
 
 using namespace boost::asio;
 using namespace boost::asio::ip;
 
-#include "session_server.hpp"
-#include "session_server.cpp"
 
 class server
 {

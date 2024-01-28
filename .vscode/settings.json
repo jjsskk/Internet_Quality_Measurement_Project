@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "array": "cpp",
+        "memory": "cpp",
+        "ostream": "cpp",
+        "thread": "cpp"
+    }
+}
