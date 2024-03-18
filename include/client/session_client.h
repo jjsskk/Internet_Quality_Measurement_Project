@@ -8,6 +8,8 @@
 #include "globalVariable.h"
 #include <thread>
 
+using namespace std;
+
 namespace beast = boost::beast;
 using namespace boost::asio;
 using namespace boost::asio::ip;
@@ -15,10 +17,10 @@ using namespace boost::asio::ip;
 void Fail(beast::error_code ec, char const *what);
 
 class Session
-    : public std::enable_shared_from_this<Session>
+    : public enable_shared_from_this<Session>
 {
 public:
-    Session(tcp::socket socket, int port, std::string time, std::string number);
+    Session(tcp::socket socket, int port, string time, string number);
 
     ~Session();
     void Start();
@@ -37,12 +39,12 @@ private:
     int GetCurrentUsec();
 
     io_service ioservice_;
-    std::vector<tcp::acceptor> acceptor_pool_;
-    std::vector<std::thread> threadpool_;
+    vector<tcp::acceptor> acceptor_pool_;
+    vector<thread> threadpool_;
  
     tcp::socket socket_;
-    std::array<char, 20> reply_;
-    std::array<char, 1024> reply_delay_;
+    array<char, 20> reply_;
+    array<char, 1024> reply_delay_;
     int time_;    // excution time to download or upload
     int number_; // the number of thread
     int port_;

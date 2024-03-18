@@ -36,10 +36,10 @@ void Session::ProgressbarDown()
          while (delay_down != number_)
          {
          }
-         std::cout << ": download throughput = " << throughput_down << "Mbps";
+         cout << ": download throughput = " << throughput_down << "Mbps";
       }
       else
-         std::cout << ": download throughput = " << throughput_down << "Mbps";
+         cout << ": download throughput = " << throughput_down << "Mbps";
       fflush(stdout);
       count++;              // 카운트 1증가
       usleep(time_ * 10000); // spended time per 1/100
@@ -84,10 +84,10 @@ void Session::ProgressbarUp()
          while (delay_up != number_)
          {
          }
-         std::cout << ": upload throughput =  " << throughput_up << "Mbps";
+         cout << ": upload throughput =  " << throughput_up << "Mbps";
       }
       else
-         std::cout << ": upload throughput =  " << throughput_up << "Mbps";
+         cout << ": upload throughput =  " << throughput_up << "Mbps";
       fflush(stdout);
       count++;              // 카운트 1증가
       usleep(time_ * 10000); // // spended time per 1/100

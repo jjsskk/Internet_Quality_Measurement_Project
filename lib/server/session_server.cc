@@ -1,14 +1,14 @@
 #include "session_server.h"
 
 Session::Session(tcp::socket socket)
-    : socket_(std::move(socket))
+    : socket_(move(socket))
 {
-    std::cout << "new Session connected " << std::endl;
+    cout << "new Session connected " << endl;
 }
 
 Session::~Session()
 {
-    std::cout << "Session closed " << std::endl;
+    cout << "Session closed " << endl;
     delete reply_;
 }
 
@@ -27,13 +27,13 @@ void Session::Start()
     time_ = atoi(packet.time);
     number_ = atoi(packet.number);
     port_ = 10000 + atoi(packet.port);
-    std::cout << "time:" << time_ << std::endl;
-    std::cout << "number:" << number_ << std::endl;
-    std::cout << "port:" << port_ << std::endl;
+    cout << "time:" << time_ << endl;
+    cout << "number:" << number_ << endl;
+    cout << "port:" << port_ << endl;
     ip::tcp::endpoint remote_ep = socket_.remote_endpoint();
     ip::address remote_ad = remote_ep.address();
     client_ip_ = remote_ad.to_string();
-    std::cout << client_ip_ << std::endl;
+    cout << client_ip_ << endl;
     int num = 0;
     for (; num < number_; num++)
     {
@@ -61,21 +61,21 @@ void Session::Start()
 }
 void Session::DoDownload(int port_thread)
 {
-    std::cout << "iam thread" << std::endl;
-    std::cout << port_thread << std::endl;
+    cout << "iam thread" << endl;
+    cout << port_thread << endl;
     
     tcp::socket tcp_socket(ioservice_);
     tcp::resolver resolver(ioservice_);
-    tcp::resolver::query q{client_ip_, std::to_string(port_thread)};
+    tcp::resolver::query q{client_ip_, to_string(port_thread)};
     try
     {
-        std::cout << "check " << std::endl;
+        cout << "check " << endl;
 
         socket_.read_some(buffer(reply_, reply_->size())); // to avoid where server's connect() is executed before client's accept() for new tcp connections
         sleep(2);
 
         connect(tcp_socket, resolver.resolve(q));
-        std::cout << "download connected " << std::endl;
+        cout << "download connected " << endl;
 
         reply_->fill('r');
 
@@ -83,22 +83,22 @@ void Session::DoDownload(int port_thread)
         timer.async_wait([this](const boost::system::error_code &ec)
                          { stop_ = 0; });
    
-        std::thread thread1{[this]()
+        thread thread1{[this]()
                             { ioservice_.run(); }};
         thread1.detach();
-        std::cout << "stop:" << stop_ << std::endl;
+        cout << "stop:" << stop_ << endl;
         while (stop_)
             tcp_socket.write_some(buffer(reply_, reply_->size()));
-        std::cout << "write" << std::endl;
+        cout << "write" << endl;
         tcp_socket.shutdown(tcp::socket::shutdown_send);
         reply_->fill(0);
         tcp_socket.read_some(buffer(reply_, reply_->size()));
 
         tcp_socket.close();
     }
-    catch (std::exception const &e)
+    catch (exception const &e)
     {
-        std::cerr << "exception: " << e.what() << std::endl;
+        cerr << "exception: " << e.what() << endl;
     }
 }
 void Session::DoUpload(int port_thread)
@@ -106,13 +106,13 @@ void Session::DoUpload(int port_thread)
     int sum = 0;
     tcp::socket tcp_socket(ioservice_);
     tcp::resolver resolver(ioservice_);
-    tcp::resolver::query q{client_ip_, std::to_string(port_thread)};
+    tcp::resolver::query q{client_ip_, to_string(port_thread)};
 
     try
     {
 
         connect(tcp_socket, resolver.resolve(q));
-        std::cout << "upload connected " << std::endl;
+        cout << "upload connected " << endl;
 
         auto read_length = 1;
         while (read_length != 0)
@@ -121,13 +121,13 @@ void Session::DoUpload(int port_thread)
             sum += read_length;
         }
     }
-    catch (std::exception const &e)
+    catch (exception const &e)
     {
-        std::cerr << "upload terminated: " << e.what() << std::endl;
+        cerr << "upload terminated: " << e.what() << endl;
     }
 
-    std::cout << "upload data size : " << sum << std::endl;
-    std::string check = "EOF";
+    cout << "upload data size : " << sum << endl;
+    string check = "EOF";
     tcp_socket.write_some(buffer(check, check.length()));
     tcp_socket.close();
 }
@@ -135,14 +135,14 @@ void Session::DoEndToEnd(int port_thread)
 {
     try
     {
-        std::cout << port_thread << std::endl;
+        cout << port_thread << endl;
         udp::socket udp_socket{ioservice_};
         udp_socket.open(udp::v4());
 
         udp_socket.send_to(
             boost::asio::buffer("Hello world!"),
             udp::endpoint{boost::asio::ip::make_address(client_ip_), (short unsigned int)(port_thread)});
-        std::cout << "send udp" << std::endl;
+        cout << "send udp" << endl;
         udp::endpoint client;
         int i = 0;
         while (i < 5)
@@ -155,10 +155,10 @@ void Session::DoEndToEnd(int port_thread)
             i++;
         }
     }
-    catch (std::exception &e)
+    catch (exception &e)
     {
-        std::cerr << e.what() << '\n';
+        cerr << e.what() << '\n';
     }
 
-    // std::cout.write(recv_buf.data(), len);
+    // cout.write(recv_buf.data(), len);
 }

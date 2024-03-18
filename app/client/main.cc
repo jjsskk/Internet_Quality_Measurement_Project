@@ -1,7 +1,5 @@
 
 #include <string>
-#include <boost/asio.hpp>
-#include <boost/beast/core.hpp>
 #include <cstdlib>
 #include <ctime>
 #include <chrono>
@@ -10,22 +8,19 @@
 #include "session_client.h"
 
 
-
-
-
-void RunClient(std::string host, short const port, std::string number, std::string time)
+void RunClient(string host, short const port, string number, string time)
 {
    try
    {
       io_service ioservice;
       tcp::socket tcp_socket(ioservice);
       tcp::resolver resolver(ioservice);
-      tcp::resolver::query q{host, std::to_string(port)};
-      std::srand(std::time(NULL));
-      // std::cout << "rand : " << rand() << std::endl;
+      tcp::resolver::query q{host, to_string(port)};
+      srand(std::time(NULL));
+      // cout << "rand : " << rand() << endl;
       int port = rand() % 400 + 1;
 
-      std::cout << port << std::endl;
+      cout << port << endl;
       connect(tcp_socket, resolver.resolve(q));
       typedef struct
       { // Little endian
@@ -36,18 +31,18 @@ void RunClient(std::string host, short const port, std::string number, std::stri
       pkt_t packet;
       strcpy(packet.number, number.c_str());
       strcpy(packet.time, time.c_str());
-      strcpy(packet.port, std::to_string(port).c_str());
+      strcpy(packet.port, to_string(port).c_str());
 
       tcp_socket.write_some(buffer(&packet, sizeof(pkt_t)));
-      std::vector<std::thread> threadpool;
+      vector<thread> threadpool;
 
-      std::make_shared<Session>(std::move(tcp_socket), port + 10000, time, number)->Start();
-      // threadpool.emplace_back(std::thread(&Session::Start, std::make_shared<Session>(std::move(tcp_socket), port + 20000, time,number)));
+      make_shared<Session>(move(tcp_socket), port + 10000, time, number)->Start();
+      // threadpool.emplace_back(thread(&Session::Start, make_shared<Session>(move(tcp_socket), port + 20000, time,number)));
       // threadpool.back().join();
    }
-   catch (std::exception const &e)
+   catch (exception const &e)
    {
-      std::cerr << "exception: " << e.what() << std::endl;
+      cerr << "exception: " << e.what() << endl;
    }
 }
 
