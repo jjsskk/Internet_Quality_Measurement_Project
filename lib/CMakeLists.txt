@@ -51,9 +51,9 @@ target_include_directories(server_lib PUBLIC ${CMAKE_SOURCE_DIR}/include/server 
 target_compile_options(client_lib PRIVATE -Wall -Werror)
 target_compile_options(server_lib PRIVATE -Wall -Werror)
 
-# lib 를 C++ 17 로 컴파일
-target_compile_options(client_lib PRIVATE -Wall -Werror)
-target_compile_features(server_lib PRIVATE cxx_std_11)
+# lib 를 C++ 11 로 컴파일
+target_compile_features(client_lib PUBLIC cxx_std_11)
+target_compile_features(server_lib PUBLIC cxx_std_11)
 
 
 # 만일 어떤 라이브러리 A 를 참조한다고 할 때
