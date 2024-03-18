@@ -19,8 +19,13 @@ cmake version 3.28.1
 
 CMake suite maintained and supported by Kitware (kitware.com/cmake).
 ```
+## Program Architecture
+
+![alt text](./img/image-2.png)
 
 ## Program Features
+
+- Although some of the `Boost.Asio` callback API was used, this program server was made synchronous to measure throughput.
 
 - When a client connects to the server, Download Throughput(TCP), Upload Throughput(TCP) and End-to-End 
 Delay(UDP) will be measured
@@ -63,7 +68,7 @@ cd bin
 ./perf_server <port>
 ```
 
-![Alt text](image.png)
+![Alt text](./img/image.png)
 
-![Alt text](image-1.png)
+![Alt text](./img/image-1.png)
 
