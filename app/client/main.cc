@@ -13,7 +13,7 @@
 
 
 
-void run_client(std::string host, short const port, std::string number, std::string time)
+void RunClient(std::string host, short const port, std::string number, std::string time)
 {
    try
    {
@@ -41,8 +41,8 @@ void run_client(std::string host, short const port, std::string number, std::str
       tcp_socket.write_some(buffer(&packet, sizeof(pkt_t)));
       std::vector<std::thread> threadpool;
 
-      std::make_shared<session>(std::move(tcp_socket), port + 10000, time, number)->start();
-      // threadpool.emplace_back(std::thread(&session::start, std::make_shared<session>(std::move(tcp_socket), port + 20000, time,number)));
+      std::make_shared<Session>(std::move(tcp_socket), port + 10000, time, number)->Start();
+      // threadpool.emplace_back(std::thread(&Session::Start, std::make_shared<Session>(std::move(tcp_socket), port + 20000, time,number)));
       // threadpool.back().join();
    }
    catch (std::exception const &e)
@@ -56,8 +56,8 @@ int main(int argc, char *argv[])
 
    if (argc != 5)
    {
-      printf("Usage : %s <IP> <port> <the number of session> <measure time>\n", argv[0]);
+      printf("Usage : %s <IP> <port> <the number of Session> <measure time>\n", argv[0]);
       exit(1);
    }
-   run_client(argv[1], atoi(argv[2]), argv[3], argv[4]);
+   RunClient(argv[1], atoi(argv[2]), argv[3], argv[4]);
 }

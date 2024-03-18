@@ -16,34 +16,34 @@ typedef struct
     char port[5];
 } pkt_t;
 
-class session
-    : public std::enable_shared_from_this<session>
+class Session
+    : public std::enable_shared_from_this<Session>
 {
 public:
-    session(tcp::socket socket);
-    ~session();
+    Session(tcp::socket socket);
+    ~Session();
 
-    void start();
+    void Start();
 
 private:
-    void do_download(int port_thread);
+    void DoDownload(int port_thread);
 
-    void do_upload(int port_thread);
+    void DoUpload(int port_thread);
 
-    void do_endtoend(int port_thread);
-    
-    io_service ioservice;
-    tcp::socket socket;
-    std::vector<std::thread> threadpool_down;
-    std::vector<std::thread> threadpool_up;
+    void DoEndToEnd(int port_thread);
+
+    io_service ioservice_;
+    tcp::socket socket_;
+    std::vector<std::thread> threadpool_down_;
+    std::vector<std::thread> threadpool_up_;
     // std::string data;
-    std::array<char, 20>* reply = new std::array<char, 20>;
-    std::array<char, 1024> reply_delay;
-    int time; // excution time to download or upload
-    std::string client_ip;
+    std::array<char, 20> *reply_ = new std::array<char, 20>;
+    std::array<char, 1024> reply_delay_;
+    int time_; // excution time to download or upload
+    std::string client_ip_;
     int number_; // the number of thread
-    int port;
-    int stop = 1;
+    int port_;
+    int stop_ = 1;
 };
 
 #endif

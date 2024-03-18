@@ -19,10 +19,10 @@ using namespace boost::asio;
 using namespace boost::asio::ip;
 
 
-class server
+class Server
 {
 public:
-    server(io_service &ioservice, short port)
+    Server(io_service &ioservice, short port)
         : acceptor(ioservice, tcp::endpoint(tcp::v4(), port)),
           socket(ioservice)
     {
@@ -37,10 +37,10 @@ private:
                               {
                                   if (!ec)
                                   {
-                                      threadpool.emplace_back(&session::start, std::make_shared<session>(std::move(socket)));
+                                      threadpool.emplace_back(&Session::Start, std::make_shared<Session>(std::move(socket)));
                                       threadpool.back().detach();
 
-                                      //   std::make_shared<session>(std::move(socket))->start();
+                                      //   std::make_shared<Session>(std::move(socket))->Start();
                                   }
 
                                   do_accept();
@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     }
     io_service ioservice;
 
-    server s(ioservice, std::atoi(argv[1]));
+    Server s(ioservice, std::atoi(argv[1]));
     ioservice.run();
 
     return 0;
